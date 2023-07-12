@@ -1036,6 +1036,20 @@ public class KeyguardIndicationController {
                     : R.string.keyguard_plugged_in;
         }
 
+        String percentage = NumberFormat.getPercentInstance().format(mBatteryLevel / 100f);
+        if (hasChargingTime) {
+            String chargingTimeFormatted = Formatter.formatShortElapsedTimeRoundingUpToMinutes(
+                    mContext, mChargingTimeRemaining);
+            String chargingText = mContext.getResources().getString(chargingId, chargingTimeFormatted,
+                    percentage);
+            return chargingText + getBatteryInfo();
+        } else {
+            String chargingText =  mContext.getResources().getString(chargingId, percentage);
+            return chargingText + getBatteryInfo();
+        }
+    }
+
+    protected String getBatteryInfo() {
         String batteryInfo = "";
         boolean showbatteryInfo = Settings.System.getIntForUser(mContext.getContentResolver(),
             Settings.System.LOCKSCREEN_BATTERY_INFO, 1, UserHandle.USER_CURRENT) == 1;
@@ -1044,7 +1058,7 @@ public class KeyguardIndicationController {
                 batteryInfo = batteryInfo + (mChargingCurrent / mCurrentDivider) + "mA";
             }
             if (mChargingWattage > 0) {
-                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " · ") +
+                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " • ") +
                         String.format("%.1f" , (mChargingWattage / mCurrentDivider / 1000)) + "W";
             }
             if (mChargingWattage > 0) {
@@ -1052,29 +1066,18 @@ public class KeyguardIndicationController {
                         String.format("%.1f" , (mChargingWattage / 1000 / 1000)) + "W";
             }
             if (mChargingVoltage > 0) {
-                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " · ") +
+                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " • ") +
                         String.format("%.1f", (float) (mChargingVoltage / 1000 / 1000)) + "V";
             }
             if (mTemperature > 0) {
-                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " · ") +
+                batteryInfo = (batteryInfo == "" ? "" : batteryInfo + " • ") +
                         mTemperature / 10 + "°C";
             }
             if (batteryInfo != "") {
                 batteryInfo = "\n" + batteryInfo;
             }
         }
-
-        String percentage = NumberFormat.getPercentInstance().format(mBatteryLevel / 100f);
-        if (hasChargingTime) {
-            String chargingTimeFormatted = Formatter.formatShortElapsedTimeRoundingUpToMinutes(
-                    mContext, mChargingTimeRemaining);
-            String chargingText = mContext.getResources().getString(chargingId, chargingTimeFormatted,
-                    percentage);
-            return chargingText + batteryInfo;
-        } else {
-            String chargingText =  mContext.getResources().getString(chargingId, percentage);
-            return chargingText + batteryInfo;
-        }
+        return batteryInfo;
     }
 
     public void setStatusBarKeyguardViewManager(
